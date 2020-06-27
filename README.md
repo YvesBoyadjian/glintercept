@@ -8,7 +8,7 @@ Simply copy "OpenGL32.dll" to the "bin" directory, where "FreeCAD.exe" lies.
 
 ## About
 GLIntercept GL_NO_ERROR_edition is a OpenGL function call interceptor for Windows that will intercept and log **all** [OpenGL](http://www.opengl.org) calls.
-It will also return most the time GL_NO_ERROR when calling glGetError(), event if there was errors declared by the graphics driver.
+It will also return most of the time GL_NO_ERROR when calling glGetError(), event if there was errors declared by the graphics driver.
 
 ## Binaries
 Binaries of releases can be downloaded [here](https://github.com/YvesBoyadjian/glintercept/releases)

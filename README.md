@@ -3,6 +3,8 @@
 ## Warning
 This is a modified version of GLIntercept : glGetError() will almost always return GL_NO_ERROR.
 This can be useful when using an AMD GPU or APU, as AMD OpenGL driver returns an error code more frequently than other vendors.
+[FreeCAD](https://www.freecadweb.org/) can take advantage of this DLL in order to work in all conditions. 
+Simply copy "OpenGL32.dll" to the "bin" directory, where "FreeCAD.exe" lies.
 
 ## About
 GLIntercept GL_NO_ERROR_edition is a OpenGL function call interceptor for Windows that will intercept and log **all** [OpenGL](http://www.opengl.org) calls.

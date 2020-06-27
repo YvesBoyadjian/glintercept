@@ -1,10 +1,14 @@
-# ![](./Docs/Images/GLicon.png?raw=true) GLIntercept
+# ![](./Docs/Images/GLicon.png?raw=true) GLIntercept, GL_NO_ERROR edition
+
+## Warning
+This is a modified version of GLIntercept : glGetError() will almost always return GL_NO_ERROR.
+This can be useful when using an AMD GPU or APU, as AMD OpenGL driver returns an error code more frequently than other vendors.
 
 ## About
 GLIntercept is a OpenGL function call interceptor for Windows that will intercept and log **all** [OpenGL](http://www.opengl.org) calls. 
 
 ## Binaries
-Binaries of releases can be downloaded [here](https://github.com/dtrebilco/glintercept/releases)
+Binaries of releases can be downloaded [here](https://github.com/YvesBoyadjian/glintercept/releases)
 
 ## Basic usage
 Select the version of GLIntercept right for the application being debugged (x86 or x64) 

@@ -132,6 +132,8 @@ GL_FUNCTION_WRAPPER_HEADER_RET(glGetError, (), (), GLenum)
     //Reset the cached error code (so further calls do not get the same error)
     glDriver.ResetCachedErrorCode();
   }
+
+  retValue = GL_NO_ERROR; // YB
   
   POST_FUNCTION_RET(glGetError,retValue)
 

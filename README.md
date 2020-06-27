@@ -5,7 +5,8 @@ This is a modified version of GLIntercept : glGetError() will almost always retu
 This can be useful when using an AMD GPU or APU, as AMD OpenGL driver returns an error code more frequently than other vendors.
 
 ## About
-GLIntercept is a OpenGL function call interceptor for Windows that will intercept and log **all** [OpenGL](http://www.opengl.org) calls. 
+GLIntercept GL_NO_ERROR_edition is a OpenGL function call interceptor for Windows that will intercept and log **all** [OpenGL](http://www.opengl.org) calls.
+It will also return most the time GL_NO_ERROR when calling glGetError(), event if there was errors declared by the graphics driver.
 
 ## Binaries
 Binaries of releases can be downloaded [here](https://github.com/YvesBoyadjian/glintercept/releases)

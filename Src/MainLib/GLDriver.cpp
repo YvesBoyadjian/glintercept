@@ -83,7 +83,7 @@ loggingStartFrameNum(0),
 currLogDir(""),
 loggingEnabled(true),
 threadCheckingEnabled(false),
-functionCallDepth(0),
+//functionCallDepth(0),
 
 extensionFunction(NULL),
 interceptLog(NULL),
@@ -91,7 +91,7 @@ errorDataLog(NULL),
 
 errorFuncString(""),
 
-glContext(NULL),
+//glContext(NULL),
 pluginManager(NULL),
 
 internalCallModeCount(0),
@@ -128,10 +128,10 @@ GLDriver::~GLDriver()
   }
 
   //If there exists a current GL context on shutdown, something was wrong
-  if(glContext != NULL)
+  if(glContext() != NULL)
   {
-    LOGERR(("GLDriver - Shutdown - Current OpenGL context %p?",glContext->GetRCHandle()));
-    glContext = NULL;
+    LOGERR(("GLDriver - Shutdown - Current OpenGL context %p?",glContext()->GetRCHandle()));
+    glContext() = NULL;
   }
 
   //Destroy any outstanding OpenGL contexts
@@ -240,7 +240,7 @@ bool GLDriver::Init()
   functionTable->InitKnownFunctionTable(tmpFuncArray,tmpEnumArray);
   
   //Assign thread checking flag
-  threadCheckingEnabled = configData.errorThreadChecking;
+  threadCheckingEnabled = configData.errorThreadChecking; //YB
 
   //Assign the current logging directory
   currLogDir = configData.logPath;
@@ -390,7 +390,7 @@ bool GLDriver::Init()
 void GLDriver::SetBeginEndState(bool mode)
 {
   //Only set when there is a valid context
-  if(glContext)
+  if(glContext())
   {
     glBeginEndState = mode;
 
@@ -404,7 +404,7 @@ void GLDriver::SetBeginEndState(bool mode)
 void GLDriver::SetNewListState(bool mode)
 {
   //Only set inside a valid context
-  if(glContext)
+  if(glContext())
   {
     //Cannot enable/disable a list while in a glBegin/glEnd block
     if(glBeginEndState)
@@ -509,7 +509,7 @@ bool GLDriver::LogFunctionPre(uint index, const FunctionArgs & args)
   }
 
   //Do a quick thread check (DT_TODO: Add future support to log OpenGL calls made outside a context)
-  if(threadCheckingEnabled && glContext && glContext->GetContextThreadID() != GetActiveThreadID())
+  if(threadCheckingEnabled && glContext() && glContext()->GetContextThreadID() != GetActiveThreadID())
   {
     LOGERR(("Function %s is being called on a thread that does not have the main context",funcData->GetName().c_str()));
 
@@ -524,9 +524,9 @@ bool GLDriver::LogFunctionPre(uint index, const FunctionArgs & args)
   }
 
   //If we have a context, perform context logging
-  if(glContext && functionCallDepth == 0)
+  if(glContext() && functionCallDepth() == 0)
   {
-    glContext->LogFunctionPre(funcData, index, args); 
+    glContext()->LogFunctionPre(funcData, index, args); 
   }
 
   //Pass the call to the plugin manager
@@ -542,7 +542,7 @@ bool GLDriver::LogFunctionPre(uint index, const FunctionArgs & args)
   }
 
   //Perform pre-error log reporting
-  if(configData.errorGetOpenGLChecks && functionCallDepth == 0)
+  if(configData.errorGetOpenGLChecks && functionCallDepth() == 0)
   {
     FunctionErrorCheckPre(funcData, index, args);
   }
@@ -559,14 +559,14 @@ bool GLDriver::LogFunctionPre(uint index, const FunctionArgs & args)
   }
 
   //If we time functions, set the start time
-  if(functionTimeEnabled && functionCallDepth == 0)
+  if(functionTimeEnabled && functionCallDepth() == 0)
   {
     functionTime = 0;
     functionTimer.StartTimer();
   }
 
   //Increment the function call depth
-  functionCallDepth++;
+  functionCallDepth()++;
 
   return true;
 }
@@ -576,7 +576,7 @@ bool GLDriver::LogFunctionPre(uint index, const FunctionArgs & args)
 bool GLDriver::LogFunctionPost(uint index, const FunctionRetValue & returnVal)
 {
   //Return now if not init (or there was no pre call)
-  if(!isInit || functionCallDepth == 0)
+  if(!isInit || functionCallDepth() == 0)
   {
     return false;
   }
@@ -599,17 +599,17 @@ bool GLDriver::LogFunctionPost(uint index, const FunctionRetValue & returnVal)
   }
 
   //Do a quick thread check
-  if(threadCheckingEnabled && glContext && glContext->GetContextThreadID() != GetActiveThreadID())
+  if(threadCheckingEnabled && glContext() && glContext()->GetContextThreadID() != GetActiveThreadID())
   {
     //Assume the "pre" call logged the error
     return false;    
   }
 
   //Decrement the function call depth
-  functionCallDepth--;
+  functionCallDepth()--;
 
   //If we time functions, get the final time 
-  if(functionTimeEnabled && functionCallDepth == 0)
+  if(functionTimeEnabled && functionCallDepth() == 0)
   {
     functionTime = functionTimer.GetTimeDiff();
     
@@ -618,9 +618,9 @@ bool GLDriver::LogFunctionPost(uint index, const FunctionRetValue & returnVal)
   }
 
   //If we have a context, perform context logging
-  if(glContext && functionCallDepth == 0)
+  if(glContext() && functionCallDepth() == 0)
   {
-    glContext->LogFunctionPost(funcData, index, returnVal);
+    glContext()->LogFunctionPost(funcData, index, returnVal);
   }
 
   //Pass the call to the plugin manager
@@ -636,7 +636,7 @@ bool GLDriver::LogFunctionPost(uint index, const FunctionRetValue & returnVal)
   }
 
   //Check if we can log internal calls and get error checks are requested
-  if(configData.errorGetOpenGLChecks && functionCallDepth == 0)
+  if(configData.errorGetOpenGLChecks && functionCallDepth() == 0)
   {
     FunctionErrorCheckPost(funcData,index);
   }
@@ -654,7 +654,7 @@ bool GLDriver::LogFunctionPost(uint index, const FunctionRetValue & returnVal)
     ProcessFrameEnd();
 
     //A post frame swap should only be made at the zero call depth
-    if(functionCallDepth != 0)
+    if(functionCallDepth() != 0)
     {
       LOGERR(("Pre/Post functions out of sync. Use -ThreadChecking=True to check for thread issues"));
     }
@@ -743,9 +743,9 @@ void GLDriver::FunctionErrorCheckPost(const FunctionData *funcData,uint index)
     }
 
     //If the cached error is no-error, assign this error as the new error
-    if(glContext && glContext->GetCachedError() == GL_NO_ERROR)
+    if(glContext() && glContext()->GetCachedError() == GL_NO_ERROR)
     {
-      glContext->SetCachedError(newError);
+      glContext()->SetCachedError(newError);
     }
   }
 
@@ -757,13 +757,13 @@ void GLDriver::FunctionErrorCheckPost(const FunctionData *funcData,uint index)
 float GLDriver::GetOpenGLVersion()
 {
   //Return now if not init / no context
-  if(!glContext)
+  if(!glContext())
   {
     LOGERR(("GLDriver::GetOpenGLVersion - Unable to determine version number - Not initialized/no context")); 
     return 0.0f;
   }
 
-  return glContext->GetOpenGLVersion();
+  return glContext()->GetOpenGLVersion();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -771,13 +771,13 @@ float GLDriver::GetOpenGLVersion()
 bool GLDriver::IsExtensionSupported(const char *extension)
 {
   //Return now if not init / no context
-  if(!glContext)
+  if(!glContext())
   {
     LOGERR(("GLDriver::IsExtensionSupported - Unable to determine if a extension is supported - Not initialized/no context")); 
     return false;
   }
 
-  return glContext->IsExtensionSupported(extension);
+  return glContext()->IsExtensionSupported(extension);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -934,9 +934,9 @@ void GLDriver::ProcessFrameEnd()
       }
 
       //Activate the context
-      if(glContext)
+      if(glContext())
       {
-        glContext->ActivateLoggers(currLogDir);
+        glContext()->ActivateLoggers(currLogDir);
       }
     }
     else
@@ -952,9 +952,9 @@ void GLDriver::ProcessFrameEnd()
       }
 
       //Suspend the context
-      if(glContext)
+      if(glContext())
       {
-        glContext->SuspendLoggers();
+        glContext()->SuspendLoggers();
       }
     }
   }
@@ -1007,12 +1007,12 @@ bool GLDriver::DeleteOpenGLContext(HGLRC rcHandle)
   }
 
   //Check if we are deleting the current context
-  if(delContext == glContext)
+  if(delContext == glContext())
   {
     LOGERR(("GLDriver::DeleteOpenGLContext - Deleting current context %p?",rcHandle)); 
 
     //Do not perform correct shutdown (as the GL context is not valid)
-    glContext = NULL;
+    glContext() = NULL;
   }
 
   //Remove it from the array
@@ -1025,6 +1025,8 @@ bool GLDriver::DeleteOpenGLContext(HGLRC rcHandle)
       break;
     }
   }
+
+  glContextMap.erase(delContext->GetContextThreadID());
 
   //Delete it
   delete delContext;
@@ -1043,7 +1045,7 @@ bool GLDriver::DeleteOpenGLContext(HGLRC rcHandle)
 bool GLDriver::SetOpenGLContext(HGLRC rcHandle)
 {
   //Check that existing contexts are shut down before enabling the new context.
-  if(glContext && rcHandle)
+  if(glContext() && rcHandle)
   {
     LOGERR(("GLDriver::SetOpenGLContext - Context should only go from NULL->valid and valid->NULL")); 
   }
@@ -1051,10 +1053,10 @@ bool GLDriver::SetOpenGLContext(HGLRC rcHandle)
   HGLRC oldContextHandle = NULL;
 
   //Shutdown existing context
-  if(glContext)
+  if(glContext())
   {
     //If attempting to have multiple rendering contexts active, flag an severe warning
-    if(glContext->GetContextThreadID() != GetActiveThreadID())
+    if(glContext()->GetContextThreadID() != GetActiveThreadID())
     {
       LOGERR(("*WARNING* - Multiple rendering contexts cannot be active at once with the current GLIntercept")); 
       LOGERR(("*WARNING* - GLIntercept is not currently thread safe - crashes may occur")); 
@@ -1067,14 +1069,14 @@ bool GLDriver::SetOpenGLContext(HGLRC rcHandle)
     }
 
     //Disable logging
-    glContext->SuspendLoggers();
+    glContext()->SuspendLoggers();
 
     //Get the render context handle for the old context
-    oldContextHandle = glContext->GetRCHandle();
+    oldContextHandle = glContext()->GetRCHandle();
 
     //Detach the context
-    glContext->SetContextInActive();
-    glContext = NULL;
+    glContext()->SetContextInActive();
+    glContext() = NULL;
   }
 
   //Attempt to get the context
@@ -1088,15 +1090,15 @@ bool GLDriver::SetOpenGLContext(HGLRC rcHandle)
     }
 
     //Assign the new context
-    glContext = newContext;
+    glContext() = newContext;
 
     //Assign the thread ID
-    glContext->SetContextActive(GetActiveThreadID());
+    glContext()->SetContextActive(GetActiveThreadID());
 
     //If logging is enabled, activate the loggers
     if(loggingEnabled)
     {
-      glContext->ActivateLoggers(currLogDir);
+      glContext()->ActivateLoggers(currLogDir);
     }
   }
 

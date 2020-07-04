@@ -26,12 +26,13 @@ extern "C" {
 #endif // OS_ARCH_x64
 
   //Very un-thread safe
-  void * saveRetAddress HIDDEN = NULL;
+//  void * saveRetAddress HIDDEN = NULL;
 
   extern void * extFunctions[];
   extern uint   wrapperIndex[];
 }
 
+std::map< uintptr_t, void*> saveRetAddressMap; //YB
 
 #ifdef OS_ARCH_x86
 
@@ -71,7 +72,8 @@ void * GLI_CDECL WrapperLogFunctionPost(uint funcIndex, uintptr_t retVal)
 void WrapperLogFunctionPre(uint funcIndex, void* retAddress, void* stackdata) 
 {
   // Save the return address for returning on the post call
-  saveRetAddress = retAddress;
+  //saveRetAddress = retAddress;
+	saveRetAddressMap[GetActiveThreadID()] = retAddress;
 
   FunctionArgs functionArgs((char*)stackdata);
   glDriver.LogFunctionPre(funcIndex,functionArgs);
@@ -88,7 +90,8 @@ void * WrapperLogFunctionPost(uint funcIndex, uintptr_t retVal)
   glDriver.LogFunctionPost(funcIndex, retStruct);
 
   // Return the origional return address
-  return saveRetAddress;
+  //return saveRetAddress;
+  return saveRetAddressMap.at(GetActiveThreadID());
 }
 
 #endif // OS_ARCH_x64

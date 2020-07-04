@@ -374,7 +374,10 @@ protected:
   string     currLogDir;                          // The current logging directory
   bool       loggingEnabled;                      // Flag to indicate if logging is currently enabled
   bool       threadCheckingEnabled;               // Flag to indicate if thread checking is currently enabled
-  uint       functionCallDepth;                   // The OpenGL function call depth (OpenGL functions can call other OpenGL functions)
+  std::map< uintptr_t, uint>       functionCallDepthMap; // The OpenGL function call depth (OpenGL functions can call other OpenGL functions)
+
+  uint functionCallDepth() const; // YB
+  uint& functionCallDepth(); // YB
 
   ExtensionFunction *extensionFunction;           // The class used to register extension functions 
   InterceptLog      *interceptLog;                // The class used to log function calls
@@ -382,7 +385,11 @@ protected:
 
   string             errorFuncString;             // The string representation of the last function (used in error reporting)
 
-  GLContext         *glContext;                   // The current OpenGL context
+  //GLContext         *glContext;                   // The current OpenGL context
+  GLContext* glContext() const; // YB
+  GLContext*& glContext(); // YB
+
+  std::map< uintptr_t, GLContext*> glContextMap; //YB
   vector<GLContext *> glContextArray;             // The array of all the OpenGL contexts
 
   InterceptPluginManager *pluginManager;          // The plugin manager
@@ -396,7 +403,6 @@ protected:
   TimeDiff functionTimer;                         // The timer used to measure how much time is spent in a OpenGL function
   uint     functionTime;                          // The last calculated time value for a function in microseconds
   bool     functionTimeEnabled;                   // Flag to indicate if function timing is enabled
-
 
   //@
   //  Summary:
@@ -442,13 +448,29 @@ protected:
 
 };
 
+inline GLContext* GLDriver::glContext() const {
+	return glContextMap.at(GetActiveThreadID());
+}
+
+inline GLContext*& GLDriver::glContext() {
+	return glContextMap[GetActiveThreadID()];
+}
+
+inline uint GLDriver::functionCallDepth() const {
+	return functionCallDepthMap.at(GetActiveThreadID());
+}
+
+inline uint& GLDriver::functionCallDepth() {
+	return functionCallDepthMap[GetActiveThreadID()];
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 inline GLenum GLDriver::GetCachedErrorCode()
 {
-  if(glContext)
+  if(glContext())
   {
-    return glContext->GetCachedError();
+    return glContext()->GetCachedError();
   }
  
   return GL_NO_ERROR;
@@ -458,9 +480,9 @@ inline GLenum GLDriver::GetCachedErrorCode()
 //
 inline void GLDriver::ResetCachedErrorCode()
 {
-  if(glContext)
+  if(glContext())
   {
-    glContext->SetCachedError(GL_NO_ERROR);
+    glContext()->SetCachedError(GL_NO_ERROR);
   }
 }
 
@@ -484,7 +506,7 @@ inline bool GLDriver::GetInternalGLCallMode() const
 {
   //Determine if the call count is ok for internal OpenGL calls
   //  (and we have a OpenGL context)
-  if(glContext && internalCallModeCount == 0 )
+  if(glContext() && internalCallModeCount == 0 )
   {
     return true;
   }
@@ -506,7 +528,7 @@ inline uint GLDriver::GetFrameNumber() const
 //
 inline GLContext * GLDriver::GetCurrentContext() const
 {
-  return glContext;
+  return glContext();
 }
 
 
@@ -528,7 +550,7 @@ inline uint GLDriver::GetFunctionTime() const
 //
 inline uint GLDriver::GetFunctionCallDepth() const
 {
-  return functionCallDepth;
+  return functionCallDepth();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

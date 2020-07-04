@@ -41,7 +41,8 @@ std::map< uintptr_t, void*> saveRetAddressMap; //YB
 void GLI_CDECL WrapperLogFunctionPre(uint funcIndex, void* retAddress, ... ) 
 {
   // Save the return address for returning on the post call
-  saveRetAddress = retAddress;
+  //saveRetAddress = retAddress;
+	saveRetAddressMap[GetActiveThreadID()] = retAddress;
 
   //Create the parameter access wrapper (OS/platform specific)
   FunctionArgs functionArgs((char*)&retAddress, GLIrounded_size(retAddress));
@@ -60,7 +61,8 @@ void * GLI_CDECL WrapperLogFunctionPost(uint funcIndex, uintptr_t retVal)
   glDriver.LogFunctionPost(funcIndex, retStruct);
 
   // Return the origional return address
-  return saveRetAddress;
+  //return saveRetAddress;
+  return saveRetAddressMap.at(GetActiveThreadID());
 }
 
 #endif // OS_ARCH_x86

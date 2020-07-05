@@ -395,10 +395,18 @@ protected:
   InterceptPluginManager *pluginManager;          // The plugin manager
 
 
-  uint   internalCallModeCount;                   // Counter to indicate if we can make extra GL function calls internally. (non-zero is false)
-  bool   glBeginEndState;                         // Flag to indicate if we are currently processing a glBegin/glEnd block
-  bool   glNewListState;                          // Flag to indicate if we are currently processing a glNewList/glEndList block
+	//uint   internalCallModeCount; // Counter to indicate if we can make extra GL function calls internally. (non-zero is false)
+	//bool   glBeginEndState; // Flag to indicate if we are currently processing a glBegin/glEnd block
+	//bool   glNewListState; // Flag to indicate if we are currently processing a glNewList/glEndList block
 
+  uint internalCallModeCount() const; //YB
+  uint& internalCallModeCount(); //YB
+
+  bool glBeginEndState() const; //YB
+  bool& glBeginEndState(); //YB
+
+  bool glNewListState() const; //YB
+  bool& glNewListState(); //YB
 
   TimeDiff functionTimer;                         // The timer used to measure how much time is spent in a OpenGL function
   uint     functionTime;                          // The last calculated time value for a function in microseconds
@@ -453,7 +461,11 @@ inline GLContext* GLDriver::glContext() const {
 }
 
 inline GLContext*& GLDriver::glContext() {
-	return glContextMap[GetActiveThreadID()];
+	uintptr_t atid = GetActiveThreadID();
+	if (glContextMap.find(atid) == glContextMap.end()) {
+		glContextMap[atid] = (GLContext*)nullptr;
+	}
+	return glContextMap[atid];
 }
 
 inline uint GLDriver::functionCallDepth() const {
@@ -461,8 +473,76 @@ inline uint GLDriver::functionCallDepth() const {
 }
 
 inline uint& GLDriver::functionCallDepth() {
-	return functionCallDepthMap[GetActiveThreadID()];
+	uintptr_t atid = GetActiveThreadID();
+	if (functionCallDepthMap.find(atid) == functionCallDepthMap.end()) {
+		functionCallDepthMap[atid] = 0;
+	}
+	return functionCallDepthMap[atid];
 }
+
+inline uint GLDriver::internalCallModeCount() const {
+	GLContext* context = glContext();
+	if (nullptr == context) {
+		LOGERR(("GLDriver - null context"));
+		return 0;
+	}
+	return context->internalCallModeCount;
+}
+
+extern uint dummy_internalCallModeCount;
+
+inline uint& GLDriver::internalCallModeCount() {
+	GLContext* context = glContext();
+	if (nullptr == context) {
+		LOGERR(("GLDriver - null context"));
+		dummy_internalCallModeCount = 0;
+		return dummy_internalCallModeCount;
+	}
+	return context->internalCallModeCount;
+}
+
+inline bool GLDriver::glBeginEndState() const {
+	GLContext* context = glContext();
+	if (nullptr == context) {
+		LOGERR(("GLDriver - null context"));
+		return false;
+	}
+	return context->glBeginEndState;
+}
+
+extern bool dummy_glBeginEndState;
+
+inline bool& GLDriver::glBeginEndState() {
+	GLContext* context = glContext();
+	if (nullptr == context) {
+		LOGERR(("GLDriver - null context"));
+		dummy_glBeginEndState = false;
+		return dummy_glBeginEndState;
+	}
+	return context->glBeginEndState;
+}
+
+inline bool GLDriver::glNewListState() const {
+	GLContext* context = glContext();
+	if (nullptr == context) {
+		LOGERR(("GLDriver - null context"));
+		return false;
+	}
+	return context->glNewListState;
+}
+
+extern bool dummy_glNewListState;
+
+inline bool& GLDriver::glNewListState() {
+	GLContext* context = glContext();
+	if (nullptr == context) {
+		LOGERR(("GLDriver - null context"));
+		dummy_glNewListState = false;
+		return dummy_glNewListState;
+	}
+	return context->glNewListState;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -490,14 +570,14 @@ inline void GLDriver::ResetCachedErrorCode()
 //
 inline bool GLDriver::GetBeginEndState() const
 {
-  return glBeginEndState;
+  return glBeginEndState();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 inline bool GLDriver::GetNewListState() const
 {
-  return glNewListState;
+  return glNewListState();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -506,7 +586,7 @@ inline bool GLDriver::GetInternalGLCallMode() const
 {
   //Determine if the call count is ok for internal OpenGL calls
   //  (and we have a OpenGL context)
-  if(glContext() && internalCallModeCount == 0 )
+  if(glContext() && internalCallModeCount() == 0 )
   {
     return true;
   }

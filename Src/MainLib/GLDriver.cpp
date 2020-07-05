@@ -32,6 +32,10 @@ extern HANDLE       dllHandle;
 
 #endif //GLI_BUILD_WINDOWS
 
+uint dummy_internalCallModeCount = 0;
+bool dummy_glBeginEndState = false;
+bool dummy_glNewListState = false;
+
 
 //@
 //  Summary:
@@ -94,9 +98,9 @@ errorFuncString(""),
 //glContext(NULL),
 pluginManager(NULL),
 
-internalCallModeCount(0),
-glBeginEndState(false),
-glNewListState(false),
+//internalCallModeCount(0),
+//glBeginEndState(false),
+//glNewListState(false),
 
 functionTime(0),
 functionTimeEnabled(false)
@@ -392,7 +396,7 @@ void GLDriver::SetBeginEndState(bool mode)
   //Only set when there is a valid context
   if(glContext())
   {
-    glBeginEndState = mode;
+    glBeginEndState() = mode;
 
     //Enable/disable based on if we are enabling or disabling the mode
     SetInternalGLCallMode(!mode);
@@ -407,7 +411,7 @@ void GLDriver::SetNewListState(bool mode)
   if(glContext())
   {
     //Cannot enable/disable a list while in a glBegin/glEnd block
-    if(glBeginEndState)
+    if(glBeginEndState())
     {
       if(mode)
       {
@@ -420,7 +424,7 @@ void GLDriver::SetNewListState(bool mode)
     }
     else
     {
-      glNewListState = mode;
+      glNewListState() = mode;
 
       //Enable/disable based on if we are enabling or disabling the mode
       SetInternalGLCallMode(!mode);
@@ -435,9 +439,9 @@ void GLDriver::SetInternalGLCallMode(bool mode)
   if(mode)
   {
     //Check the value to catch bad calls
-    if(internalCallModeCount >0)
+    if(internalCallModeCount() >0)
     {
-      internalCallModeCount--;
+      internalCallModeCount()--;
     }
     else
     {
@@ -446,7 +450,7 @@ void GLDriver::SetInternalGLCallMode(bool mode)
   }
   else
   {
-    internalCallModeCount++;
+    internalCallModeCount()++;
   }
 }
 
@@ -1063,7 +1067,7 @@ bool GLDriver::SetOpenGLContext(HGLRC rcHandle)
     }
 
     //Check when the state change occurs
-    if(internalCallModeCount > 0 || glBeginEndState || glNewListState)
+    if(internalCallModeCount() > 0 || glBeginEndState() || glNewListState())
     {
       LOGERR(("GLDriver::SetOpenGLContext - Changing context in the middle of a glBegin/glNewList block?")); 
     }

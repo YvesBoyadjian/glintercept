@@ -338,6 +338,11 @@ protected:
 
   InterceptDisplayList *interceptList;            // The class used to log display list calls
 
+  uint   internalCallModeCount; // Counter to indicate if we can make extra GL function calls internally. (non-zero is false)
+  bool   glBeginEndState; // Flag to indicate if we are currently processing a glBegin/glEnd block
+  bool   glNewListState; // Flag to indicate if we are currently processing a glNewList/glEndList block
+  
+  friend GLDriver;
   //@
   //  Summary:
   //    Initializes the active context if necessary 

@@ -33,7 +33,10 @@ interceptImage(NULL),
 interceptShader(NULL),
 interceptShaderGLSL(NULL),
 interceptFrame(NULL),
-interceptList(NULL)
+interceptList(NULL),
+internalCallModeCount(0),
+glBeginEndState(false),
+glNewListState(false)
 {
 
   //Create the new intercept image

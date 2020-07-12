@@ -374,7 +374,7 @@ protected:
   string     currLogDir;                          // The current logging directory
   bool       loggingEnabled;                      // Flag to indicate if logging is currently enabled
   bool       threadCheckingEnabled;               // Flag to indicate if thread checking is currently enabled
-  std::map< uintptr_t, uint>       functionCallDepthMap; // The OpenGL function call depth (OpenGL functions can call other OpenGL functions)
+  mutable std::map< uintptr_t, uint>       functionCallDepthMap; // The OpenGL function call depth (OpenGL functions can call other OpenGL functions)
 
   uint functionCallDepth() const; // YB
   uint& functionCallDepth(); // YB
@@ -457,7 +457,8 @@ protected:
 };
 
 inline GLContext* GLDriver::glContext() const {
-	return glContextMap.at(GetActiveThreadID());
+	uintptr_t atid = GetActiveThreadID();
+	return glContextMap.at(atid);
 }
 
 inline GLContext*& GLDriver::glContext() {
@@ -469,7 +470,11 @@ inline GLContext*& GLDriver::glContext() {
 }
 
 inline uint GLDriver::functionCallDepth() const {
-	return functionCallDepthMap.at(GetActiveThreadID());
+	uintptr_t atid = GetActiveThreadID();
+	if (functionCallDepthMap.find(atid) == functionCallDepthMap.end()) {
+		functionCallDepthMap[atid] = 0;
+	}
+	return functionCallDepthMap.at(atid);
 }
 
 inline uint& GLDriver::functionCallDepth() {

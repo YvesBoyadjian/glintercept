@@ -105,7 +105,12 @@ pluginManager(NULL),
 functionTime(0),
 functionTimeEnabled(false)
 {
+	functionCallDepth() = 0;
+	glContext() = nullptr;
 
+	internalCallModeCount() = 0;
+	glBeginEndState() = false;
+	glNewListState() = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

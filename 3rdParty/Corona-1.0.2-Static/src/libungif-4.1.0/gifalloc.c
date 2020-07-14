@@ -23,7 +23,7 @@
 int BitSize(int n)
 /* return smallest bitfield size n will fit in */
 {
-    register	i;
+    register int i; // YB : warning correction
 
     for (i = 1; i <= 8; i++)
 	if ((1 << i) >= n)
@@ -196,7 +196,7 @@ void ApplyTranslation(SavedImage *Image, GifPixelType Translation[])
     register int RasterSize = Image->ImageDesc.Height * Image->ImageDesc.Width;
 
     for (i = 0; i < RasterSize; i++)
-	Image->RasterBits[i] = Translation[Image->RasterBits[i]];
+	Image->RasterBits[i] = Translation[(int)Image->RasterBits[i]]; // YB : warning
 }
 
 /******************************************************************************

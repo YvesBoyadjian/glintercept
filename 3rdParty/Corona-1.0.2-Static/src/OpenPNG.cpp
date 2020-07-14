@@ -5,7 +5,7 @@
  */
 
 
-#include <png.h>
+#include "./libpng-1.2.1/png.h"
 #include "Debug.h"
 #include "Open.h"
 #include "SimpleImage.h"

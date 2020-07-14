@@ -1,5 +1,5 @@
 #include <memory>
-#include <png.h>
+#include "./libpng-1.2.1/png.h"
 #include "Debug.h"
 #include "Save.h"
 #include "Types.h"

@@ -165,7 +165,9 @@ namespace corona {
    */
   class Image : public DLLInterface {
   public:
-    /**
+	  virtual ~Image() { }
+
+	  /**
      * Get image width.
      * @return  image width
      */

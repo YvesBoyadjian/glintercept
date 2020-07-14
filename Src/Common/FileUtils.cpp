@@ -98,6 +98,7 @@ bool FileUtils::SetFileProperties(const string &fileName,uint fileProperties)
 #ifdef GLI_BUILD_LINUX
 
 #include <fcntl.h>
+#include <unistd.h>
 #include <sys/stat.h>
 #define BUFFER_COPY_SIZE 1024
 

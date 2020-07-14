@@ -42,6 +42,13 @@ bool MapWGLFunctions(DLLLoader &openGLLib)
   {LOGERR(("Function %s unable to be mapped",#string)) return false;} \
   functionTable->UpdateBuiltinFunction(#string, (void*)GLW.string);
 
+#define GLW_FUNC_LOOKUP_DONT_STOP(string)                 \
+  tempfunc = (void**)(&GLW.string);             \
+  (*tempfunc) = openGLLib.GetFunction(#string); \
+  if(GLW.string == NULL)                        \
+  {LOGERR(("Function %s unable to be mapped, continuing",#string))/* return false*/;} \
+  functionTable->UpdateBuiltinFunction(#string, (void*)GLW.string);
+
   GLW_FUNC_LOOKUP(wglChoosePixelFormat)
   GLW_FUNC_LOOKUP(wglCopyContext)
   GLW_FUNC_LOOKUP(wglCreateContext)
@@ -51,7 +58,7 @@ bool MapWGLFunctions(DLLLoader &openGLLib)
   GLW_FUNC_LOOKUP(wglDescribePixelFormat)
   GLW_FUNC_LOOKUP(wglGetCurrentContext)
   GLW_FUNC_LOOKUP(wglGetCurrentDC)
-  GLW_FUNC_LOOKUP(wglGetDefaultProcAddress)
+  GLW_FUNC_LOOKUP_DONT_STOP(wglGetDefaultProcAddress) // Not present in Mesa3D for Windows
   GLW_FUNC_LOOKUP(wglGetLayerPaletteEntries)
   GLW_FUNC_LOOKUP(wglGetPixelFormat)
   GLW_FUNC_LOOKUP(wglGetProcAddress)

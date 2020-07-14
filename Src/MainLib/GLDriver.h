@@ -464,7 +464,7 @@ inline GLContext* GLDriver::glContext() const {
 inline GLContext*& GLDriver::glContext() {
 	uintptr_t atid = GetActiveThreadID();
 	if (glContextMap.find(atid) == glContextMap.end()) {
-		glContextMap[atid] = (GLContext*)nullptr;
+		glContextMap[atid] = (GLContext*)NULL;
 	}
 	return glContextMap[atid];
 }
@@ -487,7 +487,7 @@ inline uint& GLDriver::functionCallDepth() {
 
 inline uint GLDriver::internalCallModeCount() const {
 	GLContext* context = glContext();
-	if (nullptr == context) {
+	if (NULL == context) {
 		LOGERR(("GLDriver - null context"));
 		return 0;
 	}
@@ -498,7 +498,7 @@ extern uint dummy_internalCallModeCount;
 
 inline uint& GLDriver::internalCallModeCount() {
 	GLContext* context = glContext();
-	if (nullptr == context) {
+	if (NULL == context) {
 		LOGERR(("GLDriver - null context"));
 		dummy_internalCallModeCount = 0;
 		return dummy_internalCallModeCount;
@@ -508,7 +508,7 @@ inline uint& GLDriver::internalCallModeCount() {
 
 inline bool GLDriver::glBeginEndState() const {
 	GLContext* context = glContext();
-	if (nullptr == context) {
+	if (NULL == context) {
 		LOGERR(("GLDriver - null context"));
 		return false;
 	}
@@ -519,7 +519,7 @@ extern bool dummy_glBeginEndState;
 
 inline bool& GLDriver::glBeginEndState() {
 	GLContext* context = glContext();
-	if (nullptr == context) {
+	if (NULL == context) {
 		LOGERR(("GLDriver - null context"));
 		dummy_glBeginEndState = false;
 		return dummy_glBeginEndState;
@@ -529,7 +529,7 @@ inline bool& GLDriver::glBeginEndState() {
 
 inline bool GLDriver::glNewListState() const {
 	GLContext* context = glContext();
-	if (nullptr == context) {
+	if (NULL == context) {
 		LOGERR(("GLDriver - null context"));
 		return false;
 	}
@@ -540,7 +540,7 @@ extern bool dummy_glNewListState;
 
 inline bool& GLDriver::glNewListState() {
 	GLContext* context = glContext();
-	if (nullptr == context) {
+	if (NULL == context) {
 		LOGERR(("GLDriver - null context"));
 		dummy_glNewListState = false;
 		return dummy_glNewListState;

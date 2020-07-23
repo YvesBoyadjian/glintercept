@@ -735,6 +735,9 @@ string InterceptLog::ConvertParam(const ParamValue &data, bool isPointer,const P
   return retString;
 }
 
+// Was 25 in version 1.3.4
+#define MAX_STRING_LENGTH 50
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 bool InterceptLog::ConvertCustomParam(const ParamValue &data, bool isPointer,const ParameterData *paramData,string &retString)
@@ -752,11 +755,11 @@ bool InterceptLog::ConvertCustomParam(const ParamValue &data, bool isPointer,con
       {
         retString = "NULL";
       } 
-      //If the string length is greater than 25 charcters, append it
-      else if(strlen(charArray) > 25)
+      //If the string length is greater than MAX_STRING_LENGTH charcters, append it
+      else if(strlen(charArray) > MAX_STRING_LENGTH)
       {
         //Assign the buffer data
-        retString.assign(charArray,25);
+        retString.assign(charArray, MAX_STRING_LENGTH);
         retString = "\"" + retString + "...\"";
       }
       else

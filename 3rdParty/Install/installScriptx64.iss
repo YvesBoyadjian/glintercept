@@ -5,12 +5,12 @@
 
 [Setup]
 
-AppVersion=1.3.4
-VersionInfoVersion=1.3.4.0
+AppVersion=1.3.5
+VersionInfoVersion=1.3.5.0
 
-AppVerName=GLInterceptx64 1.3.4
-DefaultDirName={pf}\GLInterceptx64_1_3_4
-OutputBaseFilename=GLInterceptx64_1_3_4
+AppVerName=GLInterceptx64 1.3.5
+DefaultDirName={pf}\GLInterceptx64_1_3_5
+OutputBaseFilename=GLInterceptx64_1_3_5
 
 AppName=GLInterceptx64
 DefaultGroupName=GLInterceptx64
